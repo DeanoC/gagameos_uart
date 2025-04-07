@@ -29,6 +29,16 @@ VERILATOR_CONFIG = $(SIM_DIR)/verilator_config.vlt
 # Default toplevel module
 TOPLEVEL = uart_top
 
+# Add a target for tb_uart_all
+tb_uart_all: $(VERILOG_SOURCES) $(TB_SOURCES) $(VERILATOR_CPP_TB)
+	$(VERILATOR) $(VERILATOR_FLAGS) \
+		-o $(BUILD_DIR)/Vtb_uart_all \
+		--top-module tb_uart_all \
+		tb/tb_uart_all.v tb/tb_uart_tx.v tb/tb_uart_top.v tb/tb_uart_baud_gen.v tb/tb_uart_fifo.v \
+		$(VERILOG_SOURCES) \
+		-CFLAGS "-I$(SIM_DIR)"
+	./$(BUILD_DIR)/Vtb_uart_all
+
 .PHONY: all clean sim verilate test lint help
 
 # Default target
@@ -49,7 +59,7 @@ verilate: $(VERILOG_SOURCES) $(VERILATOR_CPP_TB)
 		-CFLAGS "-I$(SIM_DIR)"
 	
 sim: verilate
-	./obj_dir/V$(TOPLEVEL)
+	./obj_dir/build/V$(TOPLEVEL)
 
 # Testbench simulation with specific module
 test_%: $(VERILOG_SOURCES) $(TB_DIR)/tb_%.v
@@ -68,13 +78,15 @@ help:
 	@echo "Makefile for gagameos_uart Verilog project"
 	@echo ""
 	@echo "Targets:"
-	@echo "  all      - Default target, build and run sim"
-	@echo "  clean    - Remove build artifacts"
-	@echo "  verilate - Compile Verilog with Verilator"
-	@echo "  sim      - Run Verilator simulation"
-	@echo "  test_X   - Run testbench for module X"
-	@echo "  lint     - Run Verilator lint check"
+	@echo "  all          - Default target, build and run sim"
+	@echo "  clean        - Remove build artifacts"
+	@echo "  verilate     - Compile Verilog with Verilator"
+	@echo "  sim          - Run Verilator simulation"
+	@echo "  tb_uart_all  - Run the top-level testbench for all UART tests"
+	@echo "  test_X       - Run testbench for module X"
+	@echo "  lint         - Run Verilator lint check"
 	@echo ""
 	@echo "Examples:"
+	@echo "  make tb_uart_all    - Run the top-level testbench for all UART tests"
 	@echo "  make test_uart_tx   - Test the UART TX module"
 	@echo "  make lint           - Lint check all Verilog code"

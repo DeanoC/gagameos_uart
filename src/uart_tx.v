@@ -16,14 +16,17 @@ module uart_tx #(
     input wire tx_start,         // Start transmit
     output reg tx,               // TX output signal
     output wire busy,            // TX busy signal
-    output reg done              // TX done signal
+    output reg done,             // TX done signal
+    
+    // Debug outputs
+    output wire [2:0] dbg_tx_state  // TX state machine state
 );
 
     // TX state machine states
     localparam IDLE        = 3'd0;
     localparam START_BIT   = 3'd1;
-    localparam DATA_BITS   = 3'd2;
-    localparam STOP_BITS   = 3'd3;
+    localparam DATA_STATE  = 3'd2;
+    localparam STOP_STATE  = 3'd3;
     localparam DONE        = 3'd4;
 
     // Transmitter registers
@@ -32,6 +35,9 @@ module uart_tx #(
     reg [3:0] bit_counter;
     reg [DATA_BITS-1:0] shift_reg;
     reg [3:0] stop_bit_counter;
+    
+    // Debug signals
+    assign dbg_tx_state = state;
 
     // Busy signal generation
     assign busy = (state != IDLE);
@@ -68,19 +74,19 @@ module uart_tx #(
                     tx <= 1'b0;  // Start bit is low
                     
                     if (baud_tick) begin
-                        state <= DATA_BITS;
+                        state <= DATA_STATE;
                         bit_counter <= 0;
                     end
                 end
                 
-                DATA_BITS: begin
+                DATA_STATE: begin
                     tx <= shift_reg[0]; // LSB first
                     
                     if (baud_tick) begin
                         shift_reg <= {1'b0, shift_reg[DATA_BITS-1:1]}; // Shift right
                         
                         if (bit_counter == DATA_BITS - 1) begin
-                            state <= STOP_BITS;
+                            state <= STOP_STATE;
                             stop_bit_counter <= 0;
                         end else begin
                             bit_counter <= bit_counter + 4'd1;
@@ -88,7 +94,7 @@ module uart_tx #(
                     end
                 end
                 
-                STOP_BITS: begin
+                STOP_STATE: begin
                     tx <= 1'b1;  // Stop bit is high
                     
                     if (baud_tick) begin

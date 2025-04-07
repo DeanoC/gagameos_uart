@@ -69,8 +69,8 @@ module uart_regs #(
     reg [31:0] int_enable_reg;
     reg [31:0] int_status_reg;
     
-    // Pass TX data directly
-    assign tx_fifo_data_in = wdata[DATA_BITS-1:0];
+    // We no longer need to assign tx_fifo_data_in here
+    // as it's now handled in uart_top.v
     
     // Extract control signals from registers
     always @(posedge clk or negedge rst_n) begin

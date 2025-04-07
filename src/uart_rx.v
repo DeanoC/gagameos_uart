@@ -23,8 +23,8 @@ module uart_rx #(
     // RX state machine states
     localparam IDLE        = 3'd0;
     localparam START_BIT   = 3'd1;
-    localparam DATA_BITS   = 3'd2;
-    localparam STOP_BITS   = 3'd3;
+    localparam DATA_STATE  = 3'd2;
+    localparam STOP_STATE  = 3'd3;
     localparam WAIT_IDLE   = 3'd4;
 
     // Oversampling counter values
@@ -98,7 +98,7 @@ module uart_rx #(
                         if (oversample_counter == SAMPLE_MIDDLE) begin
                             // Verify start bit is still low
                             if (!rx_filtered) begin
-                                state <= DATA_BITS;
+                                state <= DATA_STATE;
                                 oversample_counter <= 0;
                                 bit_counter <= 0;
                             end else begin
@@ -110,14 +110,14 @@ module uart_rx #(
                         end
                     end
                     
-                    DATA_BITS: begin
+                    DATA_STATE: begin
                         // Oversample data bits
                         if (oversample_counter == SAMPLE_MIDDLE) begin
                             // Sample data in the middle of bit
                             shift_reg <= {rx_filtered, shift_reg[DATA_BITS-1:1]};
                             
                             if (bit_counter == DATA_BITS - 1) begin
-                                state <= STOP_BITS;
+                                state <= STOP_STATE;
                                 oversample_counter <= 0;
                                 stop_bit_counter <= 0;
                             end else begin
@@ -132,7 +132,7 @@ module uart_rx #(
                             oversample_counter <= oversample_counter + 5'd1;
                     end
                     
-                    STOP_BITS: begin
+                    STOP_STATE: begin
                         // Oversample stop bits
                         if (oversample_counter == SAMPLE_MIDDLE) begin
                             // Check stop bit
