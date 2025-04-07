@@ -1,0 +1,18 @@
+// Verilator configuration for gagameos_uart project
+
+// Ignore specific warnings
+`verilator_config
+
+// Ignore undriven signals (useful during development)
+lint_off -rule UNDRIVEN
+
+// Ignore unused signals (useful during development)
+lint_off -rule UNUSED
+
+// Ignore width mismatches warnings
+lint_off -rule WIDTH
+
+// Re-enable when design is more mature
+// lint_on -rule UNDRIVEN
+// lint_on -rule UNUSED
+// lint_on -rule WIDTH

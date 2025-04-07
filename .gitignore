@@ -1,0 +1,33 @@
+# Build artifacts
+build/
+obj_dir/
+sim/obj_dir/
+
+# Simulation outputs
+*.vcd
+*.fst
+*.lxt
+*.lxt2
+
+# Verilator generated files
+*.mk
+*.d
+*.o
+verilated*.*
+
+# Logs and temps
+*.log
+*.tmp
+*.bak
+*.swp
+
+# OS specific
+.DS_Store
+.directory
+Thumbs.db
+
+# Editor specific
+.vscode/
+.idea/
+*.sublime-*
+*~
